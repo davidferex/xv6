@@ -124,3 +124,22 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_freemem()
+{
+  int type;
+  if (argint(0, &type) < 0){
+          return -1;
+  }
+  if (type < 0 || type > 1){
+          return -1;
+  }
+
+  if (type == 1){
+          return freemem()*PGSIZE;
+  }
+  return freemem();
+
+
+}

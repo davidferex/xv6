@@ -176,6 +176,7 @@ UPROGS=\
 	_date\
 	_dup2test\
 	_forktest\
+	_tfreem\
 	_grep\
 	_init\
 	_kill\

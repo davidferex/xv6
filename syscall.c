@@ -90,6 +90,7 @@ extern int sys_dup2(void);
 extern int sys_exec(void);
 extern int sys_exit(void);
 extern int sys_fork(void);
+extern int sys_freemem(void);
 extern int sys_fstat(void);
 extern int sys_getpid(void);
 extern int sys_kill(void);
@@ -130,6 +131,7 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_date]    sys_date,
 [SYS_dup2]    sys_dup2,
+[SYS_freemem] sys_freemem,
 };
 
 void

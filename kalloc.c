@@ -18,6 +18,7 @@ struct run {
 };
 
 struct {
+  int freemem;
   struct spinlock lock;
   int use_lock;
   struct run *freelist;
@@ -33,6 +34,7 @@ kinit1(void *vstart, void *vend)
 {
   initlock(&kmem.lock, "kmem");
   kmem.use_lock = 0;
+  kmem.freemem = 0;
   freerange(vstart, vend);
 }
 
@@ -72,6 +74,7 @@ kfree(char *v)
   r = (struct run*)v;
   r->next = kmem.freelist;
   kmem.freelist = r;
+  kmem.freemem++;
   if(kmem.use_lock)
     release(&kmem.lock);
 }
@@ -87,10 +90,23 @@ kalloc(void)
   if(kmem.use_lock)
     acquire(&kmem.lock);
   r = kmem.freelist;
-  if(r)
+  if(r){
     kmem.freelist = r->next;
+    kmem.freemem--;
+  }
   if(kmem.use_lock)
     release(&kmem.lock);
   return (char*)r;
 }
 
+//Para ejercicio 4 boletin 3
+int
+freemem(void)
+{
+ if (kmem.use_lock)
+   acquire(&kmem.lock);
+ int free = kmem.freemem;
+ if (kmem.use_lock)
+   release(&kmem.lock);
+ return free;
+}
