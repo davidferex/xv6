@@ -65,9 +65,11 @@ exec(char *path, char **argv)
   // Aqui es donde hay que cambiar para tener las mismas paginas de datos que de pila EJERCICIO 3
   sz = PGROUNDUP(sz);
   curproc->guarda = sz;
-  if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
+  int suma = sz + PGSIZE;
+  //Para tener mismo numero paginas en pila que datos mas codigo, sz es ese tamano hasta este momento.
+  if((sz = allocuvm(pgdir, sz, sz + suma)) == 0)
     goto bad;
-  clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
+  clearpteu(pgdir, (char*)(sz - suma));
   sp = sz;
 
   // Push argument strings, prepare rest of stack in ustack.
