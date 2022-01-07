@@ -484,6 +484,7 @@ itrunc(struct inode *ip)
         for (h = 0; h < NINDIRECT; h++){
           if(a2[h] != 0){
             bfree(ip->dev, a2[h]);
+	    a2[h] = 0;
 	  }
         }
 	brelse(bp2);
