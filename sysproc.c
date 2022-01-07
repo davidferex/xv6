@@ -78,10 +78,20 @@ sys_sbrk(void)
     return -1;
   }
   if (n < 0){
+    //Compruebo que no se decremente demasiado
+    //como la pila tiene codigo + datos de tamaño, y la guarda es eso justamente,
+    //lo usamos como tamaño de la pila.
+    if (myproc()->sz + n < 2*myproc()->guarda + 1){
+	    return -1;
+    }
     if (growproc(n) < 0){
 	    return -1;
     }
   } else{
+    //Compruebo que no nos pasamos.
+    if (myproc()->sz + n >= KERNBASE){
+	    return -1;
+    }
     //añadimos lo de abajo por ejercicio1
     myproc()->sz += n;
     //if(growproc(n) < 0)
@@ -125,6 +135,7 @@ sys_uptime(void)
   return xticks;
 }
 
+//Ejercicio 4 boletín lazy page allocation.
 int
 sys_freemem()
 {

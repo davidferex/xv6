@@ -79,40 +79,46 @@ trap(struct trapframe *tf)
     break;
   case T_PGFLT:
     {
-     if ((tf->err & 0x01) == 1){
-       uint direccion = PGROUNDDOWN(rcr2());
-       if (myproc()->guarda <= direccion){
-          cprintf("pid %d: no puedes acceder a la pagina guarda\n", myproc()->pid);
-          myproc()->killed = 1;
-	  break;
-       }
-       break;
-     } else{
-       //Necesitamos un lcr3, que invalida el TLB
-       //Reservar una nueva pagina fisica (kalloc)
-       //Mapear esa pagina en la direccion virtual que ha dado fallo (en rcr2())(con mappages)
-       if (rcr2() >= myproc()->sz){
-          myproc()->killed = 1;
-	  break;
-       }
-       char * mem = kalloc();
-       if (mem == 0){
-          myproc()->killed = 1;
-       } else {
-                memset(mem, 0, PGSIZE);
-       //Lo correcto seria hacerlo dentro de un if comprobando errores y eso si vale -1....
-       //Hemos tenido que quitar el static de mappages en vm.c para que no falle al compilar y se pueda llamar.
-       if (mappages(myproc()->pgdir, (char*)PGROUNDDOWN(rcr2()), PGSIZE, V2P(mem), PTE_W | PTE_U) < 0){
-          myproc()->killed = 1;
-       }
-       lcr3(V2P(myproc()->pgdir));
-       } 
-     
-     
+     if (myproc() == 0){
+         cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
+              tf->trapno, cpuid(), tf->eip, rcr2());
+         panic("trap");
+	 break;
+     }	     
+     if (rcr2() > myproc()->sz){
+         myproc()->killed = 1;
+         cprintf("pid %d: out of range\n", myproc()->pid);
+         break;
      }
-
-    break;
-    }
+     if((tf->err & 0x01) == 1){
+         uint direccion = PGROUNDDOWN(rcr2());
+         myproc()->killed = 1;
+         if (myproc()->guarda == direccion){
+            cprintf("pid %d: no puedes acceder a la pagina guarda\n", myproc()->pid);
+         }else{
+	    cprintf("pid %d: fallo de permisos", myproc()->pid);
+	 }
+         break;
+     }
+     //Necesitamos un lcr3, que invalida el TLB
+     //Reservar una nueva pagina fisica (kalloc)
+     //Mapear esa pagina en la direccion virtual que ha dado fallo (en rcr2())(con mappages)
+     char * mem = kalloc();
+     if (mem == 0){
+        myproc()->killed = 1;
+        cprintf("pid %d: out of memory\n", myproc()->pid);
+     } else {
+        memset(mem, 0, PGSIZE);
+        //Hemos tenido que quitar el static de mappages en vm.c para que no falle al compilar y se pueda llamar.
+        if (mappages(myproc()->pgdir, (char*)PGROUNDDOWN(rcr2()), PGSIZE, V2P(mem), PTE_W | PTE_U) < 0){
+           myproc()->killed = 1;
+	   cprintf("pid %d: mappages failed\n", myproc()->pid);
+        }
+        lcr3(V2P(myproc()->pgdir));
+     } 
+     
+     break;
+  }
   //PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){

@@ -89,6 +89,7 @@ sys_dup2(void)
   if (newfd == oldfd)
           return newfd;
   // 4.Si newfd esta abierto, entonces cerrarlo(fileclose)
+  // argfd devuelve 0 si todo ha ido bien, pero si el descriptor no es valido o el fichero esta cerrado devuelve -1
   if (argfd(1, 0, &fnew) == 0)
           fileclose(fnew);
 
