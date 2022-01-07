@@ -292,6 +292,7 @@ wait(int *status)
 	if (status != 0){
           *status = p->status;
 	}
+	p->status = 0;
         kfree(p->kstack);
         p->kstack = 0;
         freevm(p->pgdir);

@@ -64,11 +64,12 @@ extern uchar    ioapicid;
 void            ioapicinit(void);
 
 // kalloc.c
+int             freemem(void);
 char*           kalloc(void);
 void            kfree(char*);
 void            kinit1(void*, void*);
 void            kinit2(void*, void*);
-int             freemem(void);
+
 // kbd.c
 void            kbdintr(void);
 

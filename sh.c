@@ -172,7 +172,7 @@ main(void)
       printf(1, "Output code: %d\n", WEXITSTATUS(status));
     }
     if (WIFSIGNALED(status)){
-      printf(1, "Trap: %d\n", WEXITTRAP(status));
+      printf(1, "Output code (failure): %d\n", WEXITTRAP(status));
     }
   }
   exit(0);
